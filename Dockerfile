@@ -1,4 +1,4 @@
-FROM node as builder
+FROM node
 
 WORKDIR /app
 
@@ -10,8 +10,9 @@ RUN npm run build
 
 RUN ls
 
-FROM nginx:latest
+FROM nginx
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY  /app/dist/ /usr/share/nginx/html/
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
