@@ -1,16 +1,22 @@
 <template>
   <div class="wrap">
-    <ul class="user-list">
-      <li
-        class="user-list-item"
-        v-for="item in roomUserList"
-        :key="item.userId"
-      >
-        <span> {{ item.nickname }}</span>
-        <button @click="call(item)" v-if="userId !== item.userId">call</button>
-        <button v-else disabled>自己</button>
-      </li>
-    </ul>
+    <div>
+      <span>成员：</span>
+      <ul class="user-list">
+        <li
+          class="user-list-item"
+          v-for="item in roomUserList"
+          :key="item.userId"
+        >
+          <span> {{ item.nickname }}</span>
+          <button @click="call(item)" v-if="userId !== item.userId">
+            call
+          </button>
+          <button v-else disabled>自己</button>
+        </li>
+      </ul>
+    </div>
+
     <div>
       <div class="video-wrap">
         <video class="local-video" id="local" autoplay muted controls></video>
@@ -25,6 +31,14 @@
         </div>
         <button @click="sendMessage">发送</button>
       </div>
+    </div>
+
+    <div style="margin-left: 20px">
+      <div><span style="display: inline-block;width: 70px">昵称：</span><input v-model="nickname" /></div>
+      <div><span style="display: inline-block;width: 70px">账号：</span><input v-model="userId" /></div>
+      <div><span style="display: inline-block;width: 70px">房间号：</span><input v-model="roomId" /></div>
+
+      <button @click="joinRoom">确定</button>
     </div>
   </div>
 </template>
@@ -77,7 +91,7 @@ const setRemoteStream = (id, track) => {
   if (stream) {
     stream.addTrack(track);
   } else {
-    const newStream = new MediaStream(); 
+    const newStream = new MediaStream();
     newStream.addTrack(track);
     video.srcObject = newStream;
     video.muted = true;
@@ -87,7 +101,7 @@ const setRemoteStream = (id, track) => {
 const pcEventHandler = (pc, localUid, remoteUid) => {
   channel.value = pc.createDataChannel("chat");
   pc.ontrack = (event) => {
-    console.log('远端添加媒体轨道')
+    console.log("远端添加媒体轨道");
     setRemoteStream("remote", event.track);
   };
 
@@ -157,8 +171,8 @@ const initCallee = async (localUid, fromUid) => {
   const localStream = await getLocalUserMedia({ audio: true, video: true });
   setDomStream("local", localStream);
 
-  for(const track of localStream.getTracks()) {
-    localRtcPc.value.addTrack(track)
+  for (const track of localStream.getTracks()) {
+    localRtcPc.value.addTrack(track);
   }
 
   pcEventHandler(localRtcPc.value, localUid, fromUid);
@@ -189,12 +203,14 @@ const onRemoteAnswer = async (fromUid, offer) => {
 };
 
 const initData = () => {
-  userId.value = route.query.userId || "";
-  roomId.value = route.query.roomId || "";
-  nickname.value = route.query.nickname || "";
+  if(!roomId.value || !userId.value || !nickname.value){
+    alert('请填写完整信息')
+    return;
+  }
 
-  // const url = "wss://172.23.65.119:443"
-  const url = "wss://localhost:443"
+  const url = "ws://localhost:8000";
+  // const url = "ws://172.23.65.119:8000";
+  // const url = "wss://localhost:443"
 
   socket.value = io(url, {
     reconnectionDelayMax: 10000,
@@ -253,7 +269,9 @@ const sendMessage = () => {
   formInline.rtcMessage = "";
 };
 
-initData();
+const joinRoom = () => {
+  initData()
+}
 </script>
 
 <style scoped>

@@ -113,5 +113,3 @@ initDeviceData()
     <video width="600"  id="video" autoplay controls muted></video>
   </div>
 </template>
-
-<style scoped></style>
