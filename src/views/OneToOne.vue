@@ -208,7 +208,7 @@ const initData = () => {
     return;
   }
 
-  const url = "ws://localhost:8000";
+  const url = "wss://www.woke20.com:8000";
   // const url = "ws://172.23.65.119:8000";
   // const url = "wss://localhost:443"
 
